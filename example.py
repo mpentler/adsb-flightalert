@@ -7,11 +7,11 @@ alert = False # alert state
 already_alerted = False # have we triggered current alert already?
 
 check_delay = 60 # how often to check in seconds
-filter_text = "7700" # should be a string because of preceding 0s
+filter_text = "7700" # should be a string because of preceding 0s in some data
 filter_type = "squawk" # one of the possible key names in each aircraft dict
 aircraft_json_path = "/run/dump1090-fa/"
 
-print("adsb-flightalert is listening for a " + filter_type + " of " + filter_text + " every " + str(check_delay) + " seconds")
+print("adsb-flightalert is listening for flights with a " + filter_type + " of " + filter_text + " every " + str(check_delay) + " seconds")
 
 def main():
   global alert
@@ -22,7 +22,6 @@ def main():
 
     if (scan_result != 0): # this is where you put your alert code!
       alert = True
-      adsbflightalert.logAlerts(scan_result)
       if not already_alerted:
         # fire off notificiations here
         print("First trigger for alert")
