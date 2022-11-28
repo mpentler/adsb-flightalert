@@ -2,6 +2,8 @@
 
 This little Python module will let you parse an aircraft.json file from a running dump1090 instance and return a list with all flights that match a certain (single, for now) criteria.
 
+I found plenty of scripts and apps for parsing data from the APIs of flight tracker websites, but nothing for really digging into locally-received data and triggering an alert.
+
 You can filter based on any key found in an aircraft record. For example
 
 squawk = 7700 or callsign = blah
