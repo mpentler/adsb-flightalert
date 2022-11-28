@@ -8,7 +8,7 @@ squawk = 7700 or callsign = blah
 
 There is one main function, parseJSONfile() - send it three strings:
 
-* the path to the aircraft.json file including trailing slash
+* the path to the aircraft.json file including trailing slash (like /run/dump1090-fa/ for example)
 * the filter text to search for, such as "7700"
 * the key name to search in, such as "squawk"
 
