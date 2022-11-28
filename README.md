@@ -4,8 +4,7 @@ This little module will let you parse an aircraft.json file from a running dump1
 
 You can filter based on any key found in an aircraft record. For example
 
-squawk = 7700
-callsign = blah
+squawk = 7700 or callsign = blah
 
 There is one main function, parseJSONfile() - send it three strings:
 
