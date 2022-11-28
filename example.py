@@ -1,4 +1,4 @@
-# adsb-flightalert 0.2
+# adsb-flightalert 0.3 - example script
 # search for emergency squawks and log them to stdout
 import adsbflightalert
 import time
@@ -7,17 +7,18 @@ alert = False # alert state
 already_alerted = False # have we triggered current alert already?
 
 check_delay = 60 # how often to check in seconds
-squawk_to_alert = "7700" # should be a string because of preceding 0s
+filter_text = "7700" # should be a string because of preceding 0s
+filter_type = "squawk" # one of the possible key names in each aircraft dict
 aircraft_json_path = "/run/dump1090-fa/"
 
-print("adsb-flightalert example script is listening for squawk " + squawk_to_alert)
+print("adsb-flightalert is listening for a " + filter_type + " of " + filter_text + " every " + str(check_delay) + " seconds")
 
 def main():
   global alert
   global already_alerted
 
   while True:
-    scan_result = adsbflightalert.parseJSONfile(aircraft_json_path, squawk_to_alert) # returns either a dict of alerted planes with a count in key 0, or 0 if no alerts triggered
+    scan_result = adsbflightalert.parseJSONfile(aircraft_json_path, filter_text, filter_type) # returns either a dict of alerted planes with a count in key 0, or 0 if no alerts triggered
 
     if (scan_result != 0): # this is where you put your alert code!
       alert = True

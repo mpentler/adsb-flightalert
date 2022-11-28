@@ -1,11 +1,11 @@
-# adsb-flightalert 0.2
+# adsb-flightalert 0.3 - main library
 # parse a running dump1090 install for a particular squawk, such as 7700
 import json
 
-def parseJSONfile(aircraft_json_path, squawk_to_alert):
+def parseJSONfile(aircraft_json_path, filter_text, filter_type):
   current_alert_count = 0
   current_plane_count = 0
-  alerted_aircraft = {} # full dict of any aircraft matching the squawk - there may not always only be 1!
+  alerted_aircraft = {} # dict to store any aircraft matching the filter
 
   with open(aircraft_json_path + 'aircraft.json', 'r') as datafile:
     live_data = json.load(datafile) # load running aircraft.json
@@ -13,10 +13,10 @@ def parseJSONfile(aircraft_json_path, squawk_to_alert):
     for tracked_aircraft in live_data['aircraft']:
       current_plane_count += 1
 
-      if 'squawk' in tracked_aircraft:
-        if squawk_to_alert in tracked_aircraft['squawk']:
+      if filter_type in tracked_aircraft:
+        if filter_text in tracked_aircraft[filter_type]:
           current_alert_count += 1
-          if 'flight' not in tracked_aircraft: % # Fix blank callsigns
+          if 'flight' not in tracked_aircraft: # Fix blank callsigns
             tracked_aircraft['flight'] = "NONE"
           alerted_aircraft[current_alert_count] = tracked_aircraft # add aircraft to alerted dict
 
@@ -31,7 +31,8 @@ def logAlerts(alert_list):
 
   while num_of_alerts > 0: # run through the dict
     tracked_aircraft = alert_list[num_of_alerts]
-    print("Alert for: " + tracked_aircraft['squawk'] + " - Callsign: " + callsign)
+    # change this to work with all filter types
+    print("Alert for: " + tracked_aircraft['squawk'] + " - Callsign: " + tracked_aircraft['flight'])
     num_of_alerts -= 1 # loop
 
   print("Alerts sent:", alert_list[0])
