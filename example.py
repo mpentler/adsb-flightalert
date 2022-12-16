@@ -23,6 +23,8 @@ def main():
   while True:
     scan_result = adsbflightalert.parseJSONfile(aircraft_json_path, filters)
     if (scan_result != 0): # this is where you put your alert code!
+      # you could parse the returned dict to do more things here if you wanted
+      # key 0 contains the count of alerted planes
       alert = True
       if not already_alerted:
         # fire off notificiations here
