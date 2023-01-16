@@ -14,7 +14,7 @@ example:
 
 * squawk = 7700
 * callsign = blah
-* ...or any other key used in sircraft.json!
+* ...or any other key used in aircraft.json!
 
 There is one main function, parseJSONfile() - send it two 
 variables:
