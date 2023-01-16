@@ -3,7 +3,7 @@
 This little (very experimental, tell me about all the awful bugs in my beginner-level code!) Python module will let you parse an aircraft.json 
 file from a running dump1090 instance and return a list with all 
 flights that match certain criteria. Right now only exact 
-matches are supported.
+matches are supported. I am working on geofence capability for a future version (ie, is there a plane within a square box that you determine).
 
 I found plenty of scripts and apps for parsing data from the APIs 
 of flight tracker websites, but nothing for really digging into 
