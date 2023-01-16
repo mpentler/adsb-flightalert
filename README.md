@@ -1,6 +1,6 @@
 # adsb-flightalert
 
-This little Python module will let you parse an aircraft.json 
+This little (very experimental, tell me about all the awful bugs in my beginner-level code!) Python module will let you parse an aircraft.json 
 file from a running dump1090 instance and return a list with all 
 flights that match certain criteria. Right now only exact 
 matches are supported.
