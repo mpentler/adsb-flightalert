@@ -26,7 +26,7 @@ variables:
 
 * a string with the path to the aircraft.json file including trailing slash 
 (like /run/dump1090-fa/ for example)
-* a tuple containing tuples of string pairs in the form: ("filter 
+* a list containing tuples of string pairs in the form: ("filter 
 key", "search text") - note: area search needs a list and not a string.
 
 An example script is provided to show how to use it with some 
