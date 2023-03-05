@@ -51,7 +51,7 @@ def main():
 
 alert = False # alert state
 already_alerting = False # have we triggered an alert already?
-check_delay = 10 # how often to check in seconds
+check_delay = 60 # how often to check in seconds
 
 aircraft_json_path = "/run/dump1090-fa/" # path to aircraft.json file
 filters = [
