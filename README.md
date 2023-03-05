@@ -19,7 +19,7 @@ example:
 
 You can also specify a (single, right now) geofence box by 
 specifying a pair of coordinates in a list, bottom-left then 
-top-right coordinate).
+top-right coordinate.
 
 There is one main function, parseJSONfile() - send it two 
 variables:
