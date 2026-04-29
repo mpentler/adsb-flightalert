@@ -1,79 +1,156 @@
-# adsb-flightalert 0.5 - example script
-# parse a running dump1090-whatever install's aircraft.json for particular criteria in a key
+# adsb-flightalert 0.6 - example script
+# parse a running dump1090/readsb install's aircraft.json for particular criteria in a key
 # for example squawk = 7700, flight = blah, etc
-import adsbflightalert
+
+import json
 import time
-import smtplib
-import socket
+import adsbflightalert
 
-def logAlerts(alerted_aircraft): # send to stdout
-  # add time/date to log? if running as service there is no need
-  # if not then it would be useful. can i detect which somehow?
-  num_of_alerts = alerted_aircraft[0]
+current_emergencies_file_path = "./emergencies.json"
+historical_emergencies_file_path = "./emergencies_history.json"
 
-  while num_of_alerts > 0:
-    print(alerted_aircraft[num_of_alerts]['matched'], "alert for - Hex:", alerted_aircraft[num_of_alerts]['hex'], "Squawk:", alerted_aircraft[num_of_alerts]['squawk'], "Callsign:", alerted_aircraft[num_of_alerts]['flight'])
-    num_of_alerts -= 1
+aircraft_json_path = "/run/readsb/aircraft.json"
 
-def main():
-  global alert
-  global already_alerting
+check_delay = 5  # seconds
 
-  start_time = time.time()
-
-  while True:
-    current_time = time.time()
-
-    if current_time > start_time + check_delay:
-      scan_result = adsbflightalert.parseJSONfile(aircraft_json_path, filters)
-
-      if (scan_result != 0): # this is where you put your alert code!
-        alert = True
-        if not already_alerting:
-          # fire off notificiations here
-          print("Triggering alert state")
-          already_alerting = True
-          logAlerts(scan_result) # display the alerted flights
-        else: # do something here to update a notification?
-         # you could check alerted hex codes against a list, for example,
-         # so you don't alert planes more than neccesary, only showing new planes,
-         # or skip all alert actions entirely if already in alert mode
-         print("Continuing current alert state")
-      else: # code for no alert state here, such as cancelling a notification if one exists
-        alert = False
-        if already_alerting: # check if this needs cancelling
-          print("Canceling alert state")
-          already_alerting = False
-          # unlight an LED, change a display, etc
-      start_time = current_time
-
-    time.sleep(1)
-
-alert = False # alert state
-already_alerting = False # have we triggered an alert already?
-check_delay = 60 # how often to check in seconds
-
-aircraft_json_path = "/run/dump1090-fa/" # path to aircraft.json file
 filters = [
-  ("squawk", "7500"),
-  ("squawk", "7600"),
-  ("squawk", "7700"),
-#  ("area", [(55.5, -4.0), (56.5, -3.3)]) # not used in example, but this is how you do an area check - a list of two tuplea
+    ("squawk", "7500"),
+    ("squawk", "7600"),
+    ("squawk", "7700"),
 ]
 
+
+# JSON functions
+def load_json_file(path):
+    try:
+        with open(path, "r") as f:
+            return json.load(f)
+    except Exception:
+        return []
+
+
+def save_json_file(path, data):
+    with open(path, "w") as f:
+        json.dump(data, f, indent=2)
+
+
+def load_aircraft_data(path):
+    try:
+        with open(path, "r") as f:
+            return json.load(f)
+    except Exception:
+        return {"aircraft": []}
+
+
+# Process the alerts
+def get_reason(squawk):
+    if squawk == "7500":
+        return "Hijack"
+    elif squawk == "7600":
+        return "Radio failure"
+    elif squawk == "7700":
+        return "General Emergency"
+    return "Unknown"
+
+
+# Pop alerts into the log files
+def logAlerts(matches, full_snapshot):
+    detection_time = time.strftime("%Y-%m-%dT%H:%M:%S")
+
+    current_emergencies = load_json_file(current_emergencies_file_path)
+    historical_emergencies = load_json_file(historical_emergencies_file_path)
+
+    seen_hexes = {
+        aircraft.get("hex")
+        for aircraft in full_snapshot.get("aircraft", [])
+        if aircraft.get("hex")
+    }
+
+    for result in matches:
+        aircraft = result["aircraft"]
+
+        hex_code = aircraft.get("hex")
+        if not hex_code:
+            continue
+
+        # Check if already active
+        existing = None
+        for entry in current_emergencies:
+            if entry["hex"] == hex_code and entry["alert_status"] == "active":
+                existing = entry
+                break
+
+        if existing:
+            existing["alert_last_seen"] = detection_time
+            continue
+
+        # New alert
+        squawk = aircraft.get("squawk")
+        reason = get_reason(squawk)
+
+        new_entry = {
+            "flight": aircraft.get("flight", "").strip(),
+            "hex": hex_code,
+            "squawk": squawk or "",
+            "link": "https://your.tar1090.instance/tar1090/?icao=" + hex_code,
+            "alert_detected": detection_time,
+            "alert_last_seen": detection_time,
+            "alert_detection_stopped": "",
+            "alert_status": "active"
+        }
+
+        current_emergencies.append(new_entry)
+
+        # This is where you would put some kind of notification code, such as sending an email
+        # or lighting an LED, or whatever you want!
+
+    # Check if any alerts are inactive
+    for entry in current_emergencies:
+        if entry["alert_status"] == "active":
+            if entry["hex"] not in seen_hexes:
+                entry["alert_status"] = "inactive"
+                entry["alert_detection_stopped"] = detection_time
+
+    # Put inactive alerts in history
+    still_active = []
+    for entry in current_emergencies:
+        if entry["alert_status"] == "inactive":
+            historical_emergencies.append(entry)
+        else:
+            still_active.append(entry)
+
+    save_json_file(current_emergencies_file_path, still_active)
+    save_json_file(historical_emergencies_file_path, historical_emergencies)
+
+
+# Main loop
+def main():
+    start_time = time.time()
+
+    while True:
+        current_time = time.time()
+
+        if current_time > start_time + check_delay:
+            data = load_aircraft_data(aircraft_json_path)
+            matches = adsbflightalert.filter_aircraft(data, filters)
+
+            logAlerts(matches, data)
+
+            start_time = current_time
+        time.sleep(1)
+
+
+# Initial load
 print("==========")
-print("adsb-flightalert is listening every " + str(check_delay) + " seconds for the following filters:\n")
-filter_count = 0
-for filter in filters:
-  filter_count += 1
-  print("Filter:", filter_count, filter[0], filter[1], sep=' | ')
+print(f"Emergency logger is listening every {check_delay} seconds for:")
+for i, f in enumerate(filters, start=1):
+    print("Filter:", i, f[0], f[1], sep=" | ")
 print("==========")
 
 if __name__ == "__main__":
-  try:
-    main()
-  except KeyboardInterrupt:
-    print("==========")
-    print("adsb-flightalert is exiting...")
-    print("==========")
-    # perhaps you could cancel any alerts or output pins here to clean up before exit?
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("==========")
+        print("Emergency logger is exiting...")
+        print("==========")
