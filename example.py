@@ -1,6 +1,6 @@
 # adsb-flightalert 0.6 - example script
 # parse a running dump1090/readsb install's aircraft.json for particular criteria in a key
-# for example squawk = 7700, flight = blah, etc
+# for example squawk = 7700 (or a range), flight = blah, etc
 
 import json
 import time
