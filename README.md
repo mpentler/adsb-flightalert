@@ -23,11 +23,10 @@ top-right coordinate.
 
 Finally, you can parse for a squawk range - handy for NATO QRAs!
 
-There is one main function, parseJSONfile() - send it two 
+There is one main function, filter_aircraft(data, filters) - send it two 
 variables:
 
-* a string with the path to the aircraft.json file including trailing slash 
-(like /run/dump1090-fa/ for example)
+* a data object conaining the current aircraft data from load_aircraft_data()
 * a list containing tuples of string pairs in the form: ("filter 
 key", "search text") - note: area search needs a list and not a string.
 
@@ -36,5 +35,4 @@ basic logic to help suppress alert spam. You should get an idea
 of how to use the library with it. Basically you want to set up 
 a main loop, sleep for a time delay (check as often as you deem 
 necessary), set a variable with the results of the parsing 
-function and then do what you want with the returned data. Use 
-your imagination! The example logs to STDOUT.
+function and then do what you want with the returned data.
