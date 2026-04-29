@@ -21,7 +21,7 @@ You can also specify a (single, right now) geofence box by
 specifying a pair of coordinates in a list, bottom-left then 
 top-right coordinate.
 
-Finally, you can parse for a squawk range - handy for NATO QRAs!
+Finally, you can parse for a squawk range - handy for NATO QRAs! - check for "squawk_range", "1307-1327"
 
 There is one main function, filter_aircraft(data, filters) - send it two 
 variables:
