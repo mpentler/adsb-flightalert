@@ -1,4 +1,4 @@
-# adsb-flightalert 0.5
+# adsb-flightalert 0.6
 
 This little (very experimental, tell me about all the awful bugs 
 in my beginner-level code!) Python module will let you parse an 
@@ -20,6 +20,8 @@ example:
 You can also specify a (single, right now) geofence box by 
 specifying a pair of coordinates in a list, bottom-left then 
 top-right coordinate.
+
+Finally, you can parse for a squawk range - handy for NATO QRAs!
 
 There is one main function, parseJSONfile() - send it two 
 variables:
