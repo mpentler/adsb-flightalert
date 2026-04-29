@@ -26,10 +26,7 @@ def is_inside_box(coords_box, aircraft):
     y1, x1 = coords_box[0]
     y2, x2 = coords_box[1]
 
-    min_x, max_x = sorted([x1, x2])
-    min_y, max_y = sorted([y1, y2])
-
-    return (min_x < aircraft["lon"] < max_x) and (min_y < aircraft["lat"] < max_y)
+    return (x1 < aircraft["lon"] < x2) and (y1 < aircraft["lat"] < y2)
 
 
 def match_filter(aircraft, filter_type, filter_value):
